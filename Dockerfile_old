@@ -1,0 +1,35 @@
+# Базовый образ с Python
+FROM python:3.11-slim
+
+# Переменные окружения
+ENV PYTHONUNBUFFERED=1
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+WORKDIR /app
+
+# Системные зависимости
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    wget \
+    curl \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Сначала зависимости Python (кэшируется Docker)
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Установка браузеров Playwright + зависимостей
+RUN playwright install --with-deps chromium
+
+# Копируем проект
+COPY . .
+
+# Открываем порт
+EXPOSE 8000
+
+# Запуск FastAPI
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Налаштування профілю | Job Hunter 🇩🇪</title>
+    <link href="https://cdn.jsdelivr.net" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .navbar { border-bottom: 2px solid #007bff; }
+
+        .main-container { max-width: 1000px; margin-top: 40px; }
+
+        /* Стиль секцій як на головній */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .section-info h5 { font-weight: bold; color: #212529; margin-bottom: 10px; }
+        .section-info p { color: #6c757d; font-size: 0.9rem; line-height: 1.4; }
+
+        /* Картки у стилі vacancy-card */
+        .form-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            border: none;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #495057;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .btn-save {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 40px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            transition: all 0.2s;
+        }
+
+        .btn-save:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">🚀 Job Hunter: Профіль</span>
+        <a href="/" class="btn btn-sm btn-outline-light px-3">← На головну</a>
+    </div>
+</nav>
+
+<div class="container main-container">
+    <form action="/profile/save" method="post">
+
+        <!-- Секція 1: Персональні дані -->
+        <div class="settings-grid">
+            <div class="section-info">
+                <h5>📋 Хто ви</h5>
+                <p>Ваші контактні дані для зв'язку. ШІ автоматично вкаже їх у кінці листа.</p>
+            </div>
+            <div class="form-card">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Ім'я</label>
+                        <input type="text" name="first_name" class="form-control" placeholder="Oleksandr" value="{{ user.first_name if user else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Прізвище</label>
+                        <input type="text" name="last_name" class="form-control" placeholder="New" value="{{ user.last_name if user else '' }}" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Email для зв'язку</label>
+                        <input type="email" name="email" class="form-control" placeholder="example@mail.de" value="{{ user.email if user else '' }}" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секція 2: Адреса -->
+        <div class="settings-grid">
+            <div class="section-info">
+                <h5>📍 Адреса в Німеччині</h5>
+                <p>Важливо для формату DIN 5008. Роботодавці дивляться на вашу локацію.</p>
+            </div>
+            <div class="form-card">
+                <div class="row g-3">
+                    <div class="col-md-9">
+                        <label class="form-label">Вулиця (Straße)</label>
+                        <input type="text" name="street" class="form-control" placeholder="Mustermannstr." value="{{ user.street if user else '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">№</label>
+                        <input type="text" name="house_number" class="form-control" placeholder="10" value="{{ user.house_number if user else '' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Індекс (PLZ)</label>
+                        <input type="text" name="zip_code" class="form-control" placeholder="54290" value="{{ user.zip_code if user else '' }}">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Місто (Stadt)</label>
+                        <input type="text" name="city" class="form-control" placeholder="Trier" value="{{ user.city if user else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижня панель кнопок -->
+        <div class="d-flex justify-content-end mb-5">
+            <button type="submit" class="btn btn-save">💾 Зберегти профіль</button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+</html>

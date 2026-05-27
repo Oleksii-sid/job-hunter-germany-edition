@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  # Основное приложение (FastAPI + Парсер)
+  app:
+    build: .
+    container_name: jobs_app
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Використовуємо db (назва сервісу) як хост
+      DATABASE_URL: postgresql://user_admin:secret_password@db:5432/jobs_db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  # База данных для вакансий и пользователей
+  db:
+    image: postgres:15
+    container_name: jobs_db
+    restart: always
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: secret_password
+      # ВИПРАВЛЕНО: Тут має бути назва бази, а не назва змінної
+      POSTGRES_DB: jobs_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      # ВИПРАВЛЕНО: Додано прапорець -d для перевірки конкретної бази
+      test: ["CMD-SHELL", "pg_isready -U user_admin -d jobs_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  postgres_data:
