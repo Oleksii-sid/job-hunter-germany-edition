@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,8 @@
         .vacancy-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         pre { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; white-space: pre-wrap; font-size: 0.85rem; }
         .sidebar-card { border-radius: 12px; border: none; }
+        .lang-link { text-decoration: none; font-size: 0.9rem; }
+        .lang-link.active { font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -19,8 +21,16 @@
     <div class="container">
         <span class="navbar-brand mb-0 h1">🚀 Job Hunter: Germany Edition</span>
         <div class="d-flex align-items-center">
-            <a href="/profile" class="btn btn-outline-info btn-sm me-3">👤 Мій профіль</a>
-            <span class="text-light small">В базі: <b>{{ vacancies|length }}</b> вакансій</span>
+            <!-- Перемикач мов -->
+            <div class="me-4 text-light">
+                <a href="/?lang=uk" class="text-info lang-link {% if current_lang == 'uk' %}active{% endif %}">🇺🇦 UA</a>
+                <span class="text-muted">|</span>
+                <a href="/?lang=de" class="text-info lang-link {% if current_lang == 'de' %}active{% endif %}">🇩🇪 DE</a>
+                <span class="text-muted">|</span>
+                <a href="/?lang=en" class="text-info lang-link {% if current_lang == 'en' %}active{% endif %}">🇬🇧 EN</a>
+            </div>
+            <a href="/profile?lang={{ current_lang }}" class="btn btn-outline-info btn-sm me-3">👤 {{ texts.profile_tab }}</a>
+            <span class="text-light small">В базі: <b>{{ vacancies|length }}</b></span>
         </div>
     </div>
 </nav>
@@ -32,24 +42,24 @@
             <!-- 🔍 Пошук -->
             <div class="card shadow-sm mb-4 sidebar-card">
                 <div class="card-body">
-                    <h5 class="card-title mb-3 text-primary fw-bold">🔍 Пошук вакансій</h5>
+                    <h5 class="card-title mb-3 text-primary fw-bold">{{ texts.search_title }}</h5>
                     <form id="searchForm">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Спеціальність</label>
+                            <label class="form-label small fw-bold">{{ texts.keyword_label }}</label>
                             <input type="text" id="keyword" class="form-control" placeholder="Python Developer" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Місто</label>
+                            <label class="form-label small fw-bold">{{ texts.city_label }}</label>
                             <input type="text" id="city" class="form-control" placeholder="Trier" required>
                         </div>
                         <button type="submit" id="searchBtn" class="btn btn-primary w-100 fw-bold shadow-sm">
-                            🚀 Запустити парсинг
+                            {{ texts.btn_search }}
                         </button>
                     </form>
 
                     <div id="timerContainer" class="mt-4 d-none">
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="small">⏳ Шукаємо на StepStone/Indeed...</span>
+                            <span class="small">⏳ StepStone/Arbeitsagentur...</span>
                             <span class="small fw-bold"><span id="seconds">45</span> сек.</span>
                         </div>
                         <div class="progress" style="height: 8px;">
@@ -59,19 +69,19 @@
                 </div>
             </div>
 
-            <!-- 🗑️ Очищення бази (НОВА ФОРМА) -->
+            <!-- 🗑️ Керування базою (ВИПРАВЛЕНО НА ЗМІННУ JINJA2) -->
             <div class="card shadow-sm sidebar-card border-warning">
                 <div class="card-body">
-                    <h6 class="fw-bold text-danger">🗑️ Керування базою</h6>
-                    <form action="/clear" method="post">
+                    <h6 class="fw-bold text-danger">{{ texts.db_management }}</h6>
+                    <form action="/clear?lang={{ current_lang }}" method="post">
                         <div class="form-check mb-3 small">
                             <input class="form-check-input" type="checkbox" name="delete_user" id="delUser">
                             <label class="form-check-label" for="delUser">
-                                Видалити також <b>мій профіль</b> (особисті дані)
+                                {{ texts.chk_delete_user }}
                             </label>
                         </div>
                         <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                            Очистити список вакансій
+                            {{ texts.btn_clear }}
                         </button>
                     </form>
                 </div>
@@ -80,7 +90,8 @@
 
         <!-- Права колонка -->
         <div class="col-lg-8">
-            <h3 class="mb-4 fw-bold text-dark">📋 Результати пошуку</h3>
+            <!-- ВИПРАВЛЕНО НА ЗМІННУ JINJA2 -->
+            <h3 class="mb-4 fw-bold text-dark">{{ texts.search_results }}</h3>
             {% if vacancies|length > 0 %}
                 {% for v in vacancies %}
                 <div class="card vacancy-card mb-3 shadow-sm border-0">
@@ -88,13 +99,13 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h5 class="card-title text-dark fw-bold mb-1">{{ v.title }}</h5>
-                                <p class="text-muted small mb-0">📍 {{ v.city or 'Германия' }} | 🆔 #{{ v.id }}</p>
+                                <p class="text-muted small mb-0">📍 {{ v.city or 'Germany' }} | 🏢 {{ v.company or 'Company' }} | 🆔 #{{ v.id }}</p>
                             </div>
                             <span class="badge bg-primary rounded-pill">{{ v.status }}</span>
                         </div>
                         <div class="mt-3 d-flex flex-wrap gap-2">
                             <a href="{{ v.url }}" target="_blank" class="btn btn-sm btn-outline-primary">🔗 Відкрити</a>
-                            <button class="btn btn-sm btn-warning text-dark" onclick="generateLetter({{ v.id }})">🤖 Згенерувати лист</button>
+                            <button class="btn btn-sm btn-warning text-dark" onclick="generateLetter(event, {{ v.id }})">🤖 {{ texts.generate_letter }}</button>
                             <button class="btn btn-sm btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#letter{{ v.id }}">📄 Переглянути</button>
                         </div>
                         <div class="collapse mt-3" id="letter{{ v.id }}">
@@ -108,16 +119,19 @@
                 {% endfor %}
             {% else %}
                 <div class="text-center py-5 bg-white rounded shadow-sm">
-                    <p class="text-muted mb-0">Поки що вакансій немає. Запустіть пошук зліва!</p>
+                    <p class="text-muted mb-0">{{ texts.no_vacancies }}</p>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net"></script>
+<!-- ВИПРАВЛЕНО ПІДКЛЮЧЕННЯ BOOTSTRAP JS -->
+<script src="https://jsdelivr.net"></script>
 <script>
-// Пошук (без змін)
+const currentLang = "{{ current_lang }}";
+
+// Пошук вакансій
 document.getElementById('searchForm').onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById('searchBtn');
@@ -129,10 +143,10 @@ document.getElementById('searchForm').onsubmit = async function(e) {
     params.append('keyword', document.getElementById('keyword').value);
     params.append('city', document.getElementById('city').value);
 
-    fetch('/start_search', { method: 'POST', body: params });
+    fetch(`/start_search?lang=${currentLang}`, { method: 'POST', body: params });
 
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Шукаємо...`;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>...`;
     timer.classList.remove('d-none');
 
     let timeLeft = 45;
@@ -140,26 +154,34 @@ document.getElementById('searchForm').onsubmit = async function(e) {
         timeLeft--;
         secondsSpan.innerText = timeLeft;
         bar.style.width = ((45 - timeLeft) / 45) * 100 + '%';
-        if (timeLeft <= 0) { clearInterval(interval); window.location.reload(); }
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            window.location.search = `?lang=${currentLang}`;
+        }
     }, 1000);
 };
 
-// Генерація листа (без змін)
-async function generateLetter(vacancyId) {
+// Генерація листа
+async function generateLetter(event, vacancyId) {
     const btn = event.target;
     btn.disabled = true;
-    btn.innerText = "🤖 Генеруємо...";
+    const originalText = btn.innerText;
+    btn.innerText = "...";
+
     try {
         const response = await fetch(`/generate/${vacancyId}`, { method: "POST" });
         if (!response.ok) throw new Error();
         const data = await response.json();
         document.getElementById(`letter-text-${vacancyId}`).innerText = data.cover_letter;
-        const collapse = new bootstrap.Collapse(document.getElementById(`letter${vacancyId}`), { show: true });
+
+        const targetCollapse = document.getElementById(`letter${vacancyId}`);
+        const bsCollapse = new bootstrap.Collapse(targetCollapse, { toggle: false });
+        bsCollapse.show();
     } catch (e) {
         alert("❌ Помилка при зверненні до ШІ");
     } finally {
         btn.disabled = false;
-        btn.innerText = "🤖 Згенерувати лист";
+        btn.innerText = originalText;
     }
 }
 </script>
